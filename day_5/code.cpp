@@ -42,26 +42,12 @@ int process(std::map<int, std::set<int>> &roles, std::string &in) {
 			return;
 		}
 
-		std::cout << "----------" << nr << "---------------" << std::endl;
-		std::copy(numbers.begin(), numbers.end(), std::ostream_iterator<int>(std::cout, " "));
-		std::cout << std::endl;
 		std::set<int> &roulset = roles.at(nr);
 		for(auto it = numbers.begin(); it != numbers.end(); it++) {
 			int current = *it;
-			std::cout << "is in " << current;
 			if (roulset.contains(current)) {
-				std::cout << " --- yes" << std::endl;
 				works = false;
-				//auto tmp = numbers.end() - 1;
-				//std::swap(it, tmp);
-				//*it = nr;
-				//numbers.pop_back();
-				//numbers.push_back(current);
-				it = std::rotate(it, it+1, numbers.end());
-				std::copy(numbers.begin(), numbers.end(), std::ostream_iterator<int>(std::cout, " "));
-				std::cout << " --- moved back " << current << std::endl;
-			} else {
-				std::cout << " --- no" << std::endl;
+				std::iter_swap(it, --numbers.end());
 			}
 		}
 	});
@@ -107,6 +93,3 @@ int main() {
 
 	return 0;
 }
-
-
-// to low 4018
