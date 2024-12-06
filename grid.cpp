@@ -16,6 +16,12 @@ public:
     int higth() const {return array.size();}
     int with() const {return array.at(0).length();}
 
+    void print() {
+        for (int i{0}; i < higth(); ++i) {
+            std::cout << array.at(i) << std::endl;
+        }
+    }
+
     bool inside(int x, int y) const {
 
         if (x < 0 || y < 0 || x >= with() || y >= higth()) {
@@ -25,7 +31,27 @@ public:
         return true;
     }
 
+    bool set(int x, int y, char c) {
+        if (!inside(x,y)){
+            return false;
+        }
+        array.at(y).at(x) = c;
+        return true;
+    }
+
     char at(int x,int y) const {return array.at(y).at(x); }
+
+    bool find(char cmp, std::function< void( int, int ) >&& f) const {
+        for (int y{0}; y < higth(); ++y) {
+            for (int x{0}; x < with(); ++x) {
+                if (at(x,y) == cmp) {
+                    f(x,y);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     void for_node_neighbour(int x, int y, std::function< void( char, int, int ) >&& f) const {
         
