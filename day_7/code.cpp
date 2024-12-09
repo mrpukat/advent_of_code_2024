@@ -6,7 +6,46 @@
 
 #include "../utils.cpp"
 
+
+const std::vector<char> operators = {'+', '*', '|'};
+
+
+void all_results(const std::vector<unsigned long long> &values, int index, unsigned long long res, unsigned long long goal, std::function< void() > f, std::string debug) {
+
+	//std::cout << index << " : " << res << " : " << goal << std::endl;
+
+	if(index == values.size()) {
+		debug.push_back('=');
+		debug += std::to_string(res);
+		//std::cout << debug << std::endl;
+		if (res == goal) {
+			f();
+		}
+		return;
+	}
+
+
+	for (char c : operators) {
+		//std::cout << index << " - " << c << " - " << res << std::endl;
+		unsigned long long now_res{res};
+		std::string new_debug {debug};
+		new_debug.push_back(c);
+		new_debug += std::to_string(values.at(index));
+		if (c == '+') {
+			now_res += values.at(index);
+		} else if (c == '*') {
+			now_res *= values.at(index);
+		} else {
+			now_res = stoull(std::to_string(now_res) + std::to_string(values.at(index)));
+		}
+
+		all_results(values, index + 1, now_res, goal, f, new_debug);
+	}
+
+}
+
 unsigned long long process(std::string &in) {
+
 
 	bool first{true};
 	bool works{false};
@@ -21,55 +60,13 @@ unsigned long long process(std::string &in) {
 		}
 	});
 
-	
-	//std::copy(values.begin(), values.end(), std::ostream_iterator<unsigned long long>(std::cout, " "));
-	//std::cout << std::endl;
-
-
-	for (int i{0}; i < values.size(); ++i) {
-		std::vector<char> operations;
-		for (int j{1}; j < values.size(); ++j) {
-			for (int k{1}; k < values.size(); ++k) { 
-				if (i < j) {
-					operations.push_back('+');
-				} else {
-					operations.push_back('*');
-				}
-
-			}
-		}
-		std::cout << "------------------------------\n";
-		
-		//std::copy(operations.begin(), operations.end(), std::ostream_iterator<char>(std::cout, " "));
-		//std::cout << std::endl;
-
-		do {
-			std::cout << sum << " ?=? " << values.at(0);
-			unsigned long long res{values.at(0)}; // Move
-			for(int k{1}; k < values.size(); ++k) {
-				if (operations.at(k-1) == '+') {
-					std::cout << " + " << values.at(k);
-					res += values.at(k);
-				} else {
-					std::cout << " * " << values.at(k);
-					res *= values.at(k);
-				}
-			}
-			std::cout << " == " << res << "\n";
-
-			if (res == sum) {
-				works = true;
-				std::cout << "Works" << std::endl;
-				break;
-			}
-			//std::copy(operations.begin(), operations.end(), std::ostream_iterator<char>(std::cout, " "));
-			//std::cout << std::endl;
-		} while (std::next_permutation(operations.begin(), operations.end()));
-
-		if (works) {
-			break;
-		}
-	}
+	unsigned long long res{values.at(0)};
+	values.erase(values.begin());
+	std::cout << "start: " << sum << std::endl;
+	all_results(values, 0, res, sum, [&](){
+		works = true;
+		//std::cout << "Works!" << std::endl;
+	}, std::to_string(res));
 
 	return works ? sum : 0;
 }
@@ -95,7 +92,3 @@ int main() {
 
 	return 0;
 }
-
-
-
-// TO low 1320637061

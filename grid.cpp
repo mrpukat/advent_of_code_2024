@@ -42,15 +42,16 @@ public:
     char at(int x,int y) const {return array.at(y).at(x); }
 
     bool find(char cmp, std::function< void( int, int ) >&& f) const {
+        bool found{false};
         for (int y{0}; y < higth(); ++y) {
             for (int x{0}; x < with(); ++x) {
                 if (at(x,y) == cmp) {
                     f(x,y);
-                    return true;
+                    found = true;
                 }
             }
         }
-        return false;
+        return found;
     }
 
     void for_node_neighbour(int x, int y, std::function< void( char, int, int ) >&& f) const {
