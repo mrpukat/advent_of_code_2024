@@ -54,12 +54,15 @@ public:
         return found;
     }
 
-    void for_node_neighbour(int x, int y, std::function< void( char, int, int ) >&& f) const {
+    void for_node_neighbour(int x, int y, bool diag, std::function< void( char, int, int ) >&& f) const {
         
         for (int dx{-1}; dx <= 1; ++dx) {
             for (int dy{-1}; dy <= 1; ++dy) {
 
                 if (dx == 0 && dy == 0) {
+                    continue;
+                }
+                if (!diag && (dx != 0 && dy != 0)) {
                     continue;
                 }
 
@@ -72,8 +75,8 @@ public:
         }
     }
 
-    void for_node_neighbour(int x, int y, char cmp, std::function< void( int, int ) >&& f) const {
-        for_node_neighbour(x, y, [&](char c, int nx, int ny) {
+    void for_node_neighbour(int x, int y, bool diag, char cmp, std::function< void( int, int ) >&& f) const {
+        for_node_neighbour(x, y, diag, [&](char c, int nx, int ny) {
             if (c == cmp) {
                 f(nx, ny);
             }
