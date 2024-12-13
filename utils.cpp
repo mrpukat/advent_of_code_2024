@@ -2,6 +2,9 @@
 
 namespace aoc {
 
+    using ull = unsigned long long;
+    using ll = long long;
+
     void for_lines_in_file(std::string &&file, 
                             std::function< bool(const std::string& )>&& comp, 
                             std::function< void(std::vector<std::string>&& ) >&& f) {
@@ -72,7 +75,7 @@ namespace aoc {
     }
 
     template <>
-    void for_all_numbers<long long>(std::string in, std::function< void( long long, int, int ) >&& f) {
+    void for_all_numbers<ll>(std::string in, std::function< void( ll, int, int ) >&& f) {
 
         size_t i{0}, errased_lenth{0};
         while ((i = in.find_first_not_of("-0123456789")) != std::string::npos) {
@@ -89,8 +92,8 @@ namespace aoc {
     }
 
     template <>
-    void for_all_numbers<unsigned long long>(std::string in, std::function< void( unsigned long long, int, int ) >&& f) {
-
+    void for_all_numbers<ull>(std::string in, std::function< void( ull, int, int ) >&& f) {
+        
         size_t i{0}, errased_lenth{0};
         while ((i = in.find_first_not_of("-0123456789")) != std::string::npos) {
             std::string tmp = in.substr(0, i);
