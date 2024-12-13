@@ -8,10 +8,73 @@
 #include "../utils.cpp"
 #include "../grid.cpp"
 
+int check_coners(aoc::grid &grid, std::set<std::pair<int,int>> &s, std::pair<int, int> node, char match) {
+	
+	int x = node.first;
+	int y = node.second;
+	int perimeter{0};
+
+	if (!grid.inside(x-1,y) || (grid.at(x-1,y) != match && !s.contains({x-1,y}))) {
+		if (!grid.inside(x,y-1) || (grid.at(x,y-1) != match && !s.contains({x,y-1}))) {
+			perimeter++;
+		}
+		if (!grid.inside(x,y+1) || (grid.at(x,y+1) != match && !s.contains({x,y+1}))) {
+			perimeter++;
+		}
+	}
+
+	if (!grid.inside(x+1,y) || (grid.at(x+1,y) != match && !s.contains({x+1,y}))) {
+		if (!grid.inside(x,y-1) || (grid.at(x,y-1) != match && !s.contains({x,y-1}))) {
+			perimeter++;
+		}
+		if (!grid.inside(x,y+1) || (grid.at(x,y+1) != match && !s.contains({x,y+1}))) {
+			perimeter++;
+		}
+	}
+
+	return perimeter;
+}
+
+
+int check_coners2(aoc::grid &grid, std::set<std::pair<int,int>> &s, std::pair<int, int> node, char match) {
+	
+	int x = node.first;
+	int y = node.second;
+	int perimeter{0};
+
+	if (grid.inside(x-1,y) && (grid.at(x-1,y) == match || s.contains({x-1,y}))) {
+		if (grid.inside(x,y-1) && (grid.at(x,y-1) == match || s.contains({x,y-1}))) {
+			if (grid.at(x-1,y-1) != match && !s.contains({x-1,y-1})) {
+				perimeter++;
+			}
+		}
+		if (grid.inside(x,y+1) && (grid.at(x,y+1) == match || s.contains({x,y+1}))) {
+			if (grid.at(x-1,y+1) != match && !s.contains({x-1,y+1})) {
+				perimeter++;
+			}
+		}
+	}
+
+	if (grid.inside(x+1,y) && (grid.at(x+1,y) == match || s.contains({x+1,y}))) {
+		if (grid.inside(x,y-1) && (grid.at(x,y-1) == match || s.contains({x,y-1}))) {
+			if (grid.at(x+1,y-1) != match && !s.contains({x+1,y-1})) {
+				perimeter++;
+			}
+		}
+		if (grid.inside(x,y+1) && (grid.at(x,y+1) == match || s.contains({x,y+1}))) {
+			if (grid.at(x+1,y+1) != match && !s.contains({x+1,y+1})) {
+				perimeter++;
+			}
+		}
+	}
+
+
+	return perimeter;
+}
 
 unsigned long long process(aoc::grid &grid) {
 
-	unsigned long long sum{0};
+	aoc::ull sum{0};
 
 	//grid.print();
 	//std::cout << "---------------------------" << std::endl;
@@ -31,8 +94,6 @@ unsigned long long process(aoc::grid &grid) {
 			grid.set(x, y, '.');
 			std::set<std::pair<int,int>> s;
 			s.emplace(x, y);
-			// (x,y), X^ = nr
-			std::map<std::pair<std::pair<int, int>, bool>, int> p;
 
 			while(!q.empty()) {
 
@@ -40,21 +101,9 @@ unsigned long long process(aoc::grid &grid) {
 				std::pair<int, int> node = q.front();
 				q.pop();
 
-				if (node.first == 0) {
-					++perimeter;
-					p[{{-1,node.second}, false}] = 1;
-				} else if (node.first == grid.higth()-1) {
-					++perimeter;
-					p[{{grid.higth(),node.second}, false}] = 1;
-				}
-				if (node.second == 0) {
-					++perimeter;
-					p[{{node.first,-1}, true}] = 1;
-				} else if (node.second == grid.with()-1) {
-					++perimeter;
-					p[{{node.first,grid.with()}, true}] = 1;
-				}
-//				std::cout << "-----" << std::endl;
+				perimeter += check_coners(grid, s, node, match);
+				perimeter += check_coners2(grid, s, node, match);
+
 				grid.for_node_neighbour(node.first, node.second, false, [&](char cmp, int nx, int ny){
 					bool xIn = node.second != ny;
 
@@ -62,71 +111,11 @@ unsigned long long process(aoc::grid &grid) {
 						q.emplace(nx, ny);
 						grid.set(nx, ny, '.');
 						s.emplace(nx, ny);
-					} else {
-//						std::cout << "(" << nx << "," << ny << ") " << ny << " " << xIn << std::endl;
-						if (!s.contains({nx,ny})) {
-							++perimeter;
-							if (p.contains({{nx,ny}, xIn})) {
-								p[{{nx,ny}, xIn}]++;
-							} else {
-								p[{{nx,ny}, xIn}] = 1;
-							}
-						}
 					}
 				});
-				// std::cout << node.first << " " << node.second << std::endl;
-				// std::cout << area << " " << perimeter << std::endl;
-				// std::cout << "----" << std::endl;
 			}
 
-			perimeter = 0;
-			while(!p.empty()) {
-//				std::cout << "---" << std::endl;
-				++perimeter;
-
-				auto it = p.begin();
-				int x = it->first.first.first;
-				int y = it->first.first.second;
-				bool xIn = it->first.second;
-//				std::cout << "Found: " << x << " " << y << " " << xIn << std::endl;
-				if (it->second == 1) {
-					p.erase(it);
-				} else {
-					--it->second;
-				}
-				// Explore X
-				int sx = x, sy = y;
-				int dx{0}, dy{0};
-				if (xIn) {
-					dx++;
-				} else {
-					dy++;
-				}
-				while(true) {
-					x += dx, y += dy;
-					std::pair<int, int> node = {x,y};
-					if (!p.contains({node, xIn})) {
-						if (dx == 1) {
-							dx = -1;
-							x = sx;
-						} else if (dy == 1) {						
-							dy = -1;
-							y = sy;
-						} else {
-							break;
-						}
-					} else {
-//						std::cout << "Found: " << node.first << " " << node.second << " " << xIn << std::endl;
-						if (p[{node, xIn}] == 1) {
-							p.erase({node, xIn});
-						} else {
-							--p[{node, xIn}];
-						}
-					}
-				}
-			}
-
-			unsigned long long tmp = area*perimeter;
+			aoc::ull tmp = area*perimeter;
 			sum += tmp;
 			std::cout << match << " " << area << " * " << perimeter << " = " << tmp << " (" << sum << ")" << std::endl;
 			//grid.print();
@@ -159,13 +148,3 @@ int main() {
 	std::cout << process(grid) << std::endl;
 	return 0;
 }
-
-
-// Too low 781543
-// Too low 784847
-
-
-// Missed edgecase
-// BCA
-// ADE
-// If aa are connected then the fens can travel throw
