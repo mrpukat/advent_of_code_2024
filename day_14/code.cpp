@@ -6,7 +6,7 @@
 #include <map>
 
 #include "../utils.cpp"
-
+#include "../grid.cpp"
 
 void pre_process(std::string &in, std::vector<std::pair<int,int>> &pos, std::vector<std::pair<int,int>> &vel) {
 
@@ -36,6 +36,47 @@ void pre_process(std::string &in, std::vector<std::pair<int,int>> &pos, std::vec
 	vel.push_back(nodeV);
 }
 
+void print_process(std::vector<std::pair<int,int>> &pos) {
+	
+	int with{101};
+	int higth{103};
+
+	aoc::grid grid;
+
+	for (int i{0}; i < higth; ++i) {
+		std::string line(with, ' ');
+		grid.append_line(line);
+	}
+
+
+	for (auto p : pos) {
+		grid.set(p.first, p.second, 'X');
+	}
+
+	grid.print();
+}
+
+void setp(std::vector<std::pair<int,int>> &pos, std::vector<std::pair<int,int>> &vel) {
+
+	int with{101};
+	int higth{103};
+
+
+	for (int i{0}; i < pos.size(); ++i) {
+		pos.at(i).first = (pos.at(i).first + vel.at(i).first) % with;
+		pos.at(i).second = (pos.at(i).second + vel.at(i).second) % higth;
+
+		if (pos.at(i).first < 0) {
+			pos.at(i).first += with;
+		}
+		if (pos.at(i).second < 0) {
+			pos.at(i).second += higth;
+		}
+
+	}
+}
+
+
 aoc::ll process(std::vector<std::pair<int,int>> &pos, std::vector<std::pair<int,int>> &vel) {
 
 	int with{101};
@@ -46,19 +87,19 @@ aoc::ll process(std::vector<std::pair<int,int>> &pos, std::vector<std::pair<int,
 	int higth_middel = higth / 2;
 	int with_middel = with / 2;
 
-	std::cout << "With: " << with << " Higth: " << higth << " Middel With: " << with_middel << " Middel Higth " << higth_middel << std::endl;
+	//std::cout << "With: " << with << " Higth: " << higth << " Middel With: " << with_middel << " Middel Higth " << higth_middel << std::endl;
 
 	aoc::ll upperLeft{0}, upperRigth{0};
 	aoc::ll lowerLeft{0}, lowerRigth{0};
 
 
 	for (int i{0}; i < pos.size(); ++i) {
-		std::cout << i << " p= " << pos.at(i).first << " , " << pos.at(i).second << " v= " << vel.at(i).first << " , " << vel.at(i).second << std::endl;
+		//std::cout << i << " p= " << pos.at(i).first << " , " << pos.at(i).second << " v= " << vel.at(i).first << " , " << vel.at(i).second << std::endl;
 
 		aoc::ll x = ((aoc::ll)pos.at(i).first  + seconds * (aoc::ll)vel.at(i).first)  % with;
-		std::cout << x << " = (" << pos.at(i).first << " + " << seconds << " * " << vel.at(i).first << ") % " << with << std::endl;
+		//std::cout << x << " = (" << pos.at(i).first << " + " << seconds << " * " << vel.at(i).first << ") % " << with << std::endl;
 		aoc::ll y = ((aoc::ll)pos.at(i).second + seconds * (aoc::ll)vel.at(i).second) % higth;
-		std::cout << y << " = (" << pos.at(i).second << " + " << seconds << " * " << vel.at(i).second << ") % " << higth << std::endl;
+		//std::cout << y << " = (" << pos.at(i).second << " + " << seconds << " * " << vel.at(i).second << ") % " << higth << std::endl;
 
 		if (x < 0) {
 			x += with;
@@ -67,29 +108,29 @@ aoc::ll process(std::vector<std::pair<int,int>> &pos, std::vector<std::pair<int,
 			y += higth;
 		}
 
-		std::cout << x << " " << y << std::endl;
+		//std::cout << x << " " << y << std::endl;
 
 		if (x > with_middel) {
 			if (y > higth_middel) {
-				std::cout << "Lower Rigth: " << x << " " << y << std::endl;
+				//std::cout << "Lower Rigth: " << x << " " << y << std::endl;
 				lowerRigth++;
 			} else if (y < higth_middel) {
 				upperRigth++;
-				std::cout << "Upper Rigth: " << x << " " << y << std::endl;
+				//std::cout << "Upper Rigth: " << x << " " << y << std::endl;
 			}
 		} else if (x < with_middel) {
 			if (y > higth_middel) {
-				std::cout << "Lower Left: " << x << " " << y << std::endl;
+				//std::cout << "Lower Left: " << x << " " << y << std::endl;
 				lowerLeft++;
 			} else if (y < higth_middel) {
-				std::cout << "Upper Left: " << x << " " << y << std::endl;
+				//std::cout << "Upper Left: " << x << " " << y << std::endl;
 				upperLeft++;
 			}
 		}
 
 	}
 
-		std::cout << upperLeft << " " << upperRigth << " " << lowerLeft << " " << lowerRigth << std::endl;
+	//std::cout << upperLeft << " " << upperRigth << " " << lowerLeft << " " << lowerRigth << std::endl;
 
 
 	return upperLeft*upperRigth*lowerLeft*lowerRigth;
@@ -117,5 +158,16 @@ int main() {
 	}
 
 	std::cout << process(pos, vel) << std::endl;
+
+	for (int i{1}; i <= 10000; ++i) {
+		std::cout << i << std::endl;
+		setp(pos, vel);
+		print_process(pos);
+		std::cout << "======================================================================" << std::endl;
+		std::cout << "======================================================================" << std::endl;
+		std::cout << "======================================================================" << std::endl;
+		std::cout << "======================================================================" << std::endl;
+	}
+
 	return 0;
 }
