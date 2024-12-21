@@ -49,7 +49,6 @@ aoc::ull process(aoc::grid grid) {
 		node top = q.front();
 		x = top.x;
 		y = top.y;
-		//std::cout << "At: "<< x << " " << y << std::endl;
 		int cost = top.cost;
 		q.pop();
 
@@ -59,24 +58,19 @@ aoc::ull process(aoc::grid grid) {
 				path = std::make_shared<node>(top);
 				costMap.at(y).at(x) = cost;
 			}
-			//std::cout << "Found! " << x << " " << y << std::endl;
 			continue;
 		} else if(grid.at(x, y) != '.') {
-			//std::cout << "Wall: " << x << " " << x << std::endl;
 			continue;
 		} else if(costMap.at(y).at(x) != -1 && costMap.at(y).at(x) <= cost) {
-			//std::cout << "Costly: " << x << " " << x << std::endl;
 			continue;
 		}
 
 		costMap.at(y).at(x) = cost;
 		std::shared_ptr<node> n = std::make_shared<node>(top);
 
-		//std::cout << "Set: " << x << " " << x << std::endl;
 		grid.set(x,y, 'O');
 		grid.for_node_neighbour(x, y, false, [&](char c, int nx, int ny){
 			if (c != '#') {
-				//std::cout << "Next: " << nx << " " << ny << std::endl;				
 				q.push({nx, ny, cost+1, n});
 			}
 		});
@@ -88,7 +82,6 @@ aoc::ull process(aoc::grid grid) {
 	std::vector<node> tiles;
 
 	while(path) {
-		//std::cout << "Path: " << path->x << " " << path->y << " " << path->cost << std::endl;
 		tiles.push_back({path->x, path->y, path->cost});
 		path = path->n;
 	}
@@ -102,7 +95,7 @@ aoc::ull process(aoc::grid grid) {
 		x = tiles.at(i).x;
 		y = tiles.at(i).y;
 		int cost = tiles.at(i).cost;
-		//std::cout << x << " " << y << " " << cost << std::endl;
+
 		std::vector<std::vector<bool>> visited;
 		for (int vy{0}; vy < grid.higth(); ++vy) {
 			visited.push_back({});
@@ -118,7 +111,6 @@ aoc::ull process(aoc::grid grid) {
 			node top = q.front();
 			int nx = top.x;
 			int ny = top.y;
-			//std::cout << "At: "<< x << " " << y << std::endl;
 			int steps = top.cost;
 			q.pop();
 
@@ -126,9 +118,6 @@ aoc::ull process(aoc::grid grid) {
 				continue;
 			}
 			if(costMap.at(ny).at(nx) != -1 && costMap.at(ny).at(nx) - (cost + steps) >= compareCost) {
-				//std::cout << x << " " << y << std::endl;
-				//std::cout << cost << " -> " << costMap.at(ny).at(nx) << " " << cost + 2 - costMap.at(ny).at(nx) << std::endl;
-				//std::cout << nx << " " << ny << std::endl;
 				cheats.insert({{x,y},{nx,ny}});
 			}
 
@@ -142,25 +131,6 @@ aoc::ull process(aoc::grid grid) {
 
 		}
 
-		// Part 1 works
-		/*
-		//std::cout << x << " " << y << " " << cost << std::endl;
-		grid.for_node_neighbour(x, y, false, [&](char c, int nx, int ny){
-			if (c == '#') {
-				grid.for_node_neighbour(nx, ny, false, 'O', [&](int nnx, int nny){
-					if(costMap.at(nny).at(nnx) == -1) {
-						return;
-					}
-					if (costMap.at(nny).at(nnx) - (cost + 2) >= compareCost) {
-						//std::cout << x << " " << y << std::endl;
-						//std::cout << cost << " -> " << costMap.at(nny).at(nnx) << " " << cost + 2 - costMap.at(nny).at(nnx) << std::endl;
-						//std::cout << nnx << " " << nny << std::endl;
-						++sum;
-					}
-				});
-			}
-		});
-		*/
 	}
 
 	std::cout << "--------------------------" << std::endl;
